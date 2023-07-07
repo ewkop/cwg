@@ -114,6 +114,7 @@ class Guide(Enum):
     CROSS = 3
     CROSS_STAR = 4
     CHARACTER = 5
+    CHAR_CROSS_STAR = 6
 
 def get_character_json(file, character):
     while 1:
@@ -239,14 +240,14 @@ def draw_guide(canvas, x, y, guide, working_dir, character_info):
     canvas.setDash(1, 2);
     canvas.setStrokeColor(CMYKColor(0, 0, 0, 0.2));
 
-    if guide == Guide.STAR or guide == Guide.CROSS_STAR:
+    if guide == Guide.STAR or guide == Guide.CROSS_STAR or guide == Guide.CHAR_CROSS_STAR:
         x1 = x;
         y1 = y;
         x2 = x1 + SQUARE_SIZE;
         y2 = y - SQUARE_SIZE;
         canvas.line(x1, y1, x2, y2);
         canvas.line(x2, y1, x1, y2);
-    if guide == Guide.CROSS or guide == Guide.CROSS_STAR:
+    if guide == Guide.CROSS or guide == Guide.CROSS_STAR or guide == Guide.CHAR_CROSS_STAR:
         x1 = x;
         y1 = y - SQUARE_SIZE/2;
         x2 = x1 + SQUARE_SIZE;
@@ -260,6 +261,11 @@ def draw_guide(canvas, x, y, guide, working_dir, character_info):
         
     canvas.setDash();
     canvas.setStrokeColor(CMYKColor(0, 0, 0, 1));
+
+    if guide == Guide.CHAR_CROSS_STAR:
+        prefill_character(working_dir, canvas, x + SQUARE_PADDING, \
+                        y - SQUARE_PADDING, \
+                        character_info.character + '0.png');
 
 def prefill_character(working_dir, canvas, x, y, filename):
     size = SQUARE_SIZE - 2*SQUARE_PADDING
@@ -285,7 +291,7 @@ def draw_character_row(working_dir, canvas, character_info, y, guide): #TODO: re
                 radical_pinyin_y - SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
         draw_guide(canvas, GRID_OFFSET + i*SQUARE_SIZE, radical_pinyin_y, guide, working_dir, character_info);
 
-    if guide != Guide.CHARACTER:
+    if guide != Guide.CHARACTER and guide != Guide.CHAR_CROSS_STAR:
         prefill_character(working_dir, canvas, GRID_OFFSET + SQUARE_PADDING, \
                             radical_pinyin_y - SQUARE_PADDING, \
                             character_info.character + '0.png');
@@ -599,12 +605,14 @@ def get_guide(guide_str):
         return Guide.CROSS_STAR;
     elif guide_str == Guide.CHARACTER.name.lower():
         return Guide.CHARACTER;
+    elif guide_str == Guide.CHAR_CROSS_STAR.name.lower():
+        return Guide.CHAR_CROSS_STAR;
     else:
         raise GenException('Invalid guide ' + guide_str);
 
 def main(argv):
     makemeahanzi = '';
-    cedict = ''
+    cedict = '';
     characters = '';
     title = '';
     guide = '';
